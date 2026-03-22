@@ -1,4 +1,4 @@
-# QuantumLeap Incentive Projection Dashboard
+# Incentive Projection Dashboard
 
 A powerful, entirely client-side web application designed to project, calculate, and manage the Fiscal Year (FY26-27) incentive distributions for sales representatives and regional managers. 
 
