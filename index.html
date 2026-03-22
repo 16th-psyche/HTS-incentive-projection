@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FY26-27 Incentive Projection Spreadsheet</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* ─── CORE BRAND ─── */
+            --accent: #ffc938;
+            --accent-hover: #e6b200;
+            --accent-light: rgba(255,201,56,0.12);
+            --accent-text: #7a5500;
+            --navy: #1b2f4e;
+            --orange: #f7951a;
+            --success: #34C759;
+            --danger: #FF3B30;
+            --warning: #F5C518;
+
+            /* ─── DASHBOARD SURFACES ─── */
+            --bg-body: #f3f2ee;
+            --surface: #ffffff;
+            --surface-2: #f7f6f3;
+            --border: rgba(0,0,0,0.08);
+            --border-strong: rgba(0,0,0,0.14);
+
+            /* ─── DASHBOARD TEXT ─── */
+            --text-main: #111112;
+            --text-2: #46464e;
+            --text-muted: #74747c;
+            --text-inverse: #ffffff;
+
+            /* ─── DESIGN TOKENS ─── */
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --shadow-flat: 0 1px 2px rgba(0,0,0,0.04);
+            --row-hover: rgba(255,201,56,0.04);
+            --cell-input-bg: rgba(118,118,128,0.05);
+        }
+
+        body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg-body); margin: 0; padding: 0.8rem; color: var(--text-main); box-sizing: border-box; height: 100vh; display: flex; flex-direction: column; font-size: 13px; -webkit-font-smoothing: antialiased; }
+        * { box-sizing: border-box; }
+
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-shrink: 0; }
+        .header h1 { margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -0.025em; color: var(--text-main); }
+        .header p { margin: 2px 0 0 0; color: var(--text-muted); font-size: 11px; }
+
+        button.btn-primary { background-color: var(--accent); color: #1a1000; border: none; padding: 5px 12px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 600; cursor: pointer; transition: background-color 0.15s, transform 0.1s; display: inline-flex; align-items: center; gap: 4px; font-family: inherit;}
+        button.btn-primary:hover { background-color: var(--accent-hover); }
+        button.btn-primary:active { transform: scale(0.98); }
+
+        button.btn-success { background-color: rgba(52,199,89,0.1); color: #1a6b30; border: none; padding: 5px 12px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 600; cursor: pointer; transition: background-color 0.15s, transform 0.1s; display: inline-flex; align-items: center; gap: 4px; margin-right: 8px; }
+        button.btn-success:hover { background-color: rgba(52,199,89,0.15); }
+        button.btn-success:active { transform: scale(0.98); }
+
+        .tabs { display: flex; gap: 10px; margin-bottom: 8px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+        .tab-btn { background: transparent; border: none; padding: 6px 12px; font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color 0.15s, border-color 0.15s; font-family: inherit;}
+        .tab-btn:hover { color: var(--text-main); }
+        .tab-btn.active { color: var(--navy); border-bottom: 2px solid var(--accent); }
+        .tab-content { display: none; flex-grow: 1; flex-direction: column; overflow: auto; }
+        .tab-content.active { display: flex; }
+
+        .table-container { flex-grow: 1; overflow: auto; background: var(--surface); border-radius: var(--radius-md); border: 1px solid var(--border); box-shadow: var(--shadow-flat); }
+        table { border-collapse: collapse; min-width: 100%; width: max-content; font-size: 12px; }
+        thead { position: sticky; top: 0; z-index: 10; }
+        th { background-color: var(--surface-2); color: var(--text-muted); font-weight: 600; padding: 6px 10px; text-align: right; border-bottom: 1px solid var(--border-strong); border-right: 1px solid var(--border); white-space: nowrap; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+        th:first-child { position: sticky; left: 0; z-index: 11; text-align: left; min-width: 200px; color: var(--text-muted); }
+        .fy-total { background-color: var(--surface-2); font-weight: 700; color: var(--text-main); }
+        td { padding: 6px 10px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); text-align: right; vertical-align: middle; color: var(--text-main); font-size: 12px;}
+        td:first-child { position: sticky; left: 0; background-color: var(--surface); z-index: 5; text-align: left; font-weight: 600; box-shadow: inset -1px 0 0 var(--border); }
+        tr:hover td, tr:hover td:first-child { background-color: var(--row-hover); }
+
+        .group-header td { background-color: var(--surface-2); font-weight: 700; font-size: 12px; color: var(--text-main); padding: 8px 10px; border-top: 1px solid var(--border-strong); }
+        .group-header td:first-child { display: flex; align-items: center; justify-content: space-between; padding: 6px 10px;}
+        .aggregate-header td { background-color: var(--surface-2); font-weight: 700; color: var(--text-main); padding: 8px 10px; border-top: 1px solid var(--border-strong); font-size: 12px;}
+        
+        .manager-header td { background-color: var(--surface); font-weight: 700; color: var(--text-main); padding: 8px 10px; border-top: 1px solid var(--border-strong); font-size: 12px;}
+        .manager-header td:first-child { background-color: var(--surface); }
+        
+        .cell-input { width: 55px; padding: 5px 8px; border: 1.5px solid transparent; border-radius: var(--radius-sm); text-align: right; font-size: 11px; background-color: var(--cell-input-bg); color: var(--text-main); font-family: inherit; font-weight: 500; outline: none; transition: all 0.15s; }
+        .cell-input:focus { border-color: var(--accent); background-color: var(--accent-light); box-shadow: none; }
+        
+        .highlight-calc { color: var(--navy); font-weight: 700; font-variant-numeric: tabular-nums; }
+        .highlight-success { color: var(--success); font-weight: 700; font-variant-numeric: tabular-nums; }
+        
+        .badge { display: inline-flex; align-items: center; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 980px; line-height: 1.4; }
+        .badge-none { background: rgba(0,0,0,0.05); color: var(--text-muted); }
+        .badge-gold { background: #FFCC33; color: #3d2600; }
+        .badge-success { background: rgba(52,199,89,0.12); color: #1a6b30; }
+        .badge-info { background: rgba(27,47,78,0.1); color: var(--navy); }
+        .badge-neutral { background: rgba(0,0,0,0.05); color: var(--text-2); }
+
+        .editable-name { border: none; background: transparent; font-size: 12px; font-weight: 700; color: inherit; width: 130px; outline: none; border-bottom: 1px dashed transparent; font-family: inherit;}
+        .editable-name:focus { border-bottom: 1px dashed var(--accent); }
+        
+        .remove-btn { background: rgba(255,59,48,0.1); color: var(--danger); border: none; border-radius: var(--radius-sm); cursor: pointer; padding: 3px 8px; font-size: 11px; font-weight: 600; font-family: inherit; transition: background-color 0.15s;}
+        .remove-btn:hover { background: rgba(255,59,48,0.15); }
+
+        .settings-container { overflow-y: visible; padding: 16px 0; display: flex; flex-direction: column; gap: 16px; }
+        .settings-card { background: var(--surface); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border); box-shadow: var(--shadow-flat); }
+        .settings-card h3 { margin-top: 0; margin-bottom: 12px; font-size: 13px; font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: 8px; color: var(--text-main); }
+        .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .setting-row label { font-size: 12px; color: var(--text-2); font-weight: 400; }
+        .setting-input { width: 120px; padding: 5px 10px; border: 1.5px solid transparent; background: var(--cell-input-bg); border-radius: var(--radius-sm); font-size: 12px; text-align: right; color: var(--text-main); font-family: inherit; transition: all 0.15s;}
+        .setting-input:focus { outline: none; border-color: var(--accent); background: var(--accent-light); }
+        .slab-box { border: 1px solid var(--border); padding: 12px; border-radius: var(--radius-md); margin-bottom: 12px; background: var(--surface-2); }
+        .slab-box h4 { margin: 0 0 8px 0; font-size: 12px; font-weight: 700; color: var(--navy); }
+
+        .roster-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 12px; }
+        .roster-table th { background: var(--surface-2); padding: 6px 10px; text-align: left; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); border-bottom: 1px solid var(--border-strong); }
+        .roster-table td { padding: 6px 10px; border-bottom: 1px solid var(--border); text-align: left;}
+        .roster-input { width: 100%; padding: 5px 10px; border: 1.5px solid transparent; background: var(--cell-input-bg); border-radius: var(--radius-sm); font-size: 12px; font-family: inherit; transition: all 0.15s;}
+        .roster-input:focus { outline: none; border-color: var(--accent); background: var(--accent-light); }
+
+        /* Remove Number Spinners for Cleaner UX */
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; appearance: textfield; }
+
+        /* Print Media Queries */
+        @media print {
+            body { height: auto; overflow: visible; padding: 0; background: white; margin: 0; }
+            .header button, .tabs, .remove-btn { display: none !important; }
+            .summary-bar { box-shadow: none; border: 1px solid #000; margin: 0; }
+            .table-container { box-shadow: none; border: none; overflow: visible; }
+            th, td { border: 1px solid #000; padding: 0.2rem; font-size: 0.75rem; }
+            th:first-child, td:first-child { position: static; box-shadow: none; }
+            thead { position: static; }
+            .cell-input { border: none !important; background: transparent !important; padding: 0; }
+            .editable-name { border: none !important; }
+            .tab-content { display: none !important; }
+            #dashboardTab { display: block !important; }
+        }
+
+        .summary-bar { display: flex; align-items: center; justify-content: space-around; gap: 16px; background: var(--surface); padding: 10px 16px; border-radius: var(--radius-md); border: 1px solid var(--border); box-shadow: var(--shadow-flat); margin: 0 16px; flex-grow: 1; overflow-x: auto; }
+        .stat-box { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: max-content; }
+        .stat-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+        .stat-val { font-size: 20px; font-weight: 700; color: var(--text-main); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div>
+            <h1>Incentive Projection</h1>
+            <p>FY26-27 Forecast</p>
+        </div>
+        <div id="globalSummary" class="summary-bar">
+            <!-- Rendered by JS -->
+        </div>
+        <div id="dashboardActions">
+            <button class="btn-success" onclick="exportCSV()">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg> 
+                Download CSV
+            </button>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('dashboard')" id="btn-dashboard">Dashboard</button>
+        <button class="tab-btn" onclick="switchTab('settings')" id="btn-settings">Team & Settings</button>
+    </div>
+
+    <div id="dashboardTab" class="tab-content active">
+        <div class="table-container">
+            <table id="projectionTable">
+                <thead>
+                    <tr>
+                        <th>Items</th>
+                        <th>Apr-26</th><th>May-26</th><th>Jun-26</th><th>Jul-26</th>
+                        <th>Aug-26</th><th>Sep-26</th><th>Oct-26</th><th>Nov-26</th>
+                        <th>Dec-26</th><th>Jan-27</th><th>Feb-27</th><th>Mar-27</th>
+                        <th class="fy-total">FY26-27 Total</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="settingsTab" class="tab-content">
+        <div class="settings-container" id="settingsContainer">
+            <!-- Rendered by JS -->
+        </div>
+    </div>
+
+<script>
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabName + 'Tab').classList.add('active');
+        document.getElementById('btn-' + tabName).classList.add('active');
+        document.getElementById('dashboardActions').style.display = (tabName === 'dashboard') ? 'block' : 'none';
+        document.getElementById('globalSummary').style.display = (tabName === 'dashboard') ? 'flex' : 'none';
+        if(tabName === 'settings') renderSettings();
+    }
+
+    const MONTHS = ['Apr-26', 'May-26', 'Jun-26', 'Jul-26', 'Aug-26', 'Sep-26', 'Oct-26', 'Nov-26', 'Dec-26', 'Jan-27', 'Feb-27', 'Mar-27'];
+    
+    // Default Variables
+    let PRODUCTS = {
+        'mba': { name: 'MBA Units', value: 797000 },
+        'bsa': { name: 'BSA Units', value: 246000 },
+        'mba_renewal': { name: 'MBA Renewal', value: 500000 },
+        'bsa_renewal': { name: 'BSA to MBA Renewal', value: 615000 }
+    };
+
+    let SLABS = [
+        { name: 'Slab 1', minUnits: 3, minCol: 1797000, pct: 0.03 },
+        { name: 'Slab 2', minUnits: 4, minCol: 2200000, pct: 0.04 },
+        { name: 'Slab 3', minUnits: 6, minCol: 3500000, pct: 0.05 },
+        { name: 'Slab 4', minUnits: 8, minCol: 4500000, pct: 0.06 }
+    ];
+
+    let MGR_TARGET_UNITS = 14;
+    let MGR_TARGET_COL = 8500000;
+    
+    let MANAGERS = [
+        { id: 'mgr_1', name: 'Zakir', salary: 100000, pct: 0.006 },
+        { id: 'mgr_2', name: 'Piyush', salary: 100000, pct: 0.004 }
+    ];
+
+    function generateId() { return Math.random().toString(36).substr(2, 9); }
+    function createEmptyMember(name) {
+        let member = { id: generateId(), name: name, salary: 71000, joinMonth: 'Apr-26', appraisalMonth: '', appraisalSalary: 0, data: {} };
+        MONTHS.forEach(m => { member.data[m] = { mba: 0, bsa: 0, mba_renewal: 0, bsa_renewal: 0 }; });
+        return member;
+    }
+
+    let members = [ createEmptyMember('Sales Rep 1'), createEmptyMember('Sales Rep 2'), createEmptyMember('Sales Rep 3') ];
+
+    // Local Storage Flow
+    function saveState() {
+        // Fallback for legacy BASE_SALARY if necessary, dropping it in favor of members[].salary
+        const state = { members, MANAGERS, PRODUCTS, SLABS, MGR_TARGET_UNITS, MGR_TARGET_COL };
+        localStorage.setItem('incentiveProjectionStateV2', JSON.stringify(state));
+    }
+
+    function loadState() {
+        const saved = localStorage.getItem('incentiveProjectionStateV2');
+        if (saved) {
+            try {
+                let s = JSON.parse(saved);
+                if(s.members) {
+                    members = s.members;
+                    members.forEach(m => { if(!m.id) m.id = generateId(); });
+                }
+                if(s.MANAGERS) MANAGERS = s.MANAGERS;
+                if(s.PRODUCTS) PRODUCTS = s.PRODUCTS;
+                if(s.SLABS) SLABS = s.SLABS.sort((a,b) => a.minCol - b.minCol);
+                if(typeof s.MGR_TARGET_UNITS === 'number') MGR_TARGET_UNITS = s.MGR_TARGET_UNITS;
+                if(typeof s.MGR_TARGET_COL === 'number') MGR_TARGET_COL = s.MGR_TARGET_COL;
+            } catch(e) { console.error("Corrupted local storage ignored."); }
+        } else {
+            // Check for v1 storage to migrate
+            const oldState = localStorage.getItem('incentiveProjectionState');
+            if(oldState) {
+                try {
+                    let s = JSON.parse(oldState);
+                    if(s.members) {
+                        members = s.members;
+                        members.forEach(m => { if(!m.id) m.id = generateId(); });
+                    }
+                    if(s.PRODUCTS) PRODUCTS = s.PRODUCTS;
+                    if(s.SLABS) SLABS = s.SLABS.sort((a,b) => a.minCol - b.minCol);
+                    if(s.BASE_SALARY) members.forEach(m => m.salary = s.BASE_SALARY);
+                    if(s.MGR_TARGET_UNITS) MGR_TARGET_UNITS = s.MGR_TARGET_UNITS;
+                    if(s.MGR_TARGET_COL) MGR_TARGET_COL = s.MGR_TARGET_COL;
+                    if(s.ZAKIR_PCT) MANAGERS[0].pct = s.ZAKIR_PCT;
+                    if(s.PIYUSH_PCT) MANAGERS[1].pct = s.PIYUSH_PCT;
+                    saveState();
+                } catch(e) {}
+            }
+        }
+    }
+
+    let activeInputId = null;
+
+    function updateProduct(key, val) { PRODUCTS[key].value = Math.max(0, parseFloat(val) || 0); saveState(); renderTable(); }
+    function updateSlab(index, field, val) {
+        if (field === 'name') {
+            SLABS[index].name = val;
+        } else {
+            let numeric = Math.max(0, parseFloat(val) || 0);
+            if (field === 'pct') numeric = numeric / 100;
+            SLABS[index][field] = numeric;
+        }
+        saveState(); renderTable(); 
+    }
+    function addSlab() {
+        SLABS.push({ name: `Slab ${SLABS.length + 1}`, minUnits: 0, minCol: 0, pct: 0 });
+        saveState(); renderSettings(); renderTable();
+    }
+    function removeSlab(index) {
+        SLABS.splice(index, 1); saveState(); renderSettings(); renderTable();
+    }
+    
+    function updateTargetSettings(key, val) {
+        let numeric = Math.max(0, parseFloat(val) || 0);
+        if (key === 'MGR_TARGET_UNITS') MGR_TARGET_UNITS = numeric;
+        if (key === 'MGR_TARGET_COL') MGR_TARGET_COL = numeric;
+        saveState(); renderTable();
+    }
+
+    function addMember() { members.push(createEmptyMember(`Sales Rep ${members.length + 1}`)); saveState(); renderSettings(); renderTable(); }
+    function removeMember(id) { 
+        members = members.filter(m => m.id !== id); saveState(); 
+        if(document.getElementById('settingsTab').classList.contains('active')) {
+            renderSettings();
+        }
+        renderTable(); 
+    }
+
+    function updateMemberProfile(id, field, val) {
+        let m = members.find(m => m.id === id);
+        if(m) {
+            if(field === 'salary' || field === 'appraisalSalary') m[field] = Math.max(0, parseFloat(val) || 0);
+            else m[field] = val;
+            saveState(); renderTable();
+        }
+    }
+
+    function updateManagerProfile(index, field, val) {
+        let m = MANAGERS[index];
+        if(m) {
+            if(field === 'salary' || field === 'appraisalSalary') m[field] = Math.max(0, parseFloat(val) || 0);
+            else if(field === 'pct') m.pct = Math.max(0, parseFloat(val) || 0) / 100;
+            else m[field] = val;
+            saveState(); renderTable();
+        }
+    }
+
+    function handleNameChange(id, val) {
+        updateMemberProfile(id, 'name', val);
+    }
+
+    function handleInput(memberId, month, productKey, val) {
+        let m = members.find(m => m.id === memberId);
+        if (m) {
+            let num = parseInt(val) || 0;
+            if (num < 0) num = 0; 
+            m.data[month][productKey] = num;
+            activeInputId = `input_${memberId}_${month}_${productKey}`;
+            saveState(); renderTable();
+        }
+    }
+
+    function formatCur(val) { return val === 0 ? '-' : new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(val); }
+    function formatNum(val) { return val === 0 ? '-' : val; }
+
+    function getActiveSalary(person, month) {
+        let mIdx = MONTHS.indexOf(month);
+        
+        let jIdx = person.joinMonth ? MONTHS.indexOf(person.joinMonth) : 0;
+        if (mIdx < jIdx) return 0;
+
+        if (!person.appraisalMonth || !person.appraisalSalary) return person.salary || 0;
+        let appIdx = MONTHS.indexOf(person.appraisalMonth);
+        return (mIdx >= appIdx && appIdx !== -1) ? person.appraisalSalary : person.salary || 0;
+    }
+
+    function calculateMonthStats(member, m) {
+        let d = member.data[m];
+        let units = 0, col = 0;
+        for (let k in PRODUCTS) { units += d[k]; col += d[k] * PRODUCTS[k].value; }
+        
+        let sortedSlabs = [...SLABS].sort((a,b) => b.minCol - a.minCol);
+        let achievedSlab = null;
+        for (let s of sortedSlabs) { if (units >= s.minUnits && col >= s.minCol) { achievedSlab = s; break; } }
+        let incentive = achievedSlab ? col * achievedSlab.pct : 0;
+        let activeSal = getActiveSalary(member, m);
+        let earning = activeSal + incentive;
+        return { units, col, slab: achievedSlab, incentive, earning, salary: activeSal };
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('tableBody');
+        let html = '';
+        let teamData = {};
+        MONTHS.forEach(m => { teamData[m] = { units: 0, col: 0 }; });
+
+        let globalStats = { totalSalary: 0, totalIncentive: 0, totalRevenue: 0, products: {} };
+        for (let k in PRODUCTS) globalStats.products[k] = 0;
+
+        let sortedSlabsAsc = [...SLABS].sort((a,b) => a.minCol - b.minCol);
+        const SLAB_THEMES = [
+            { bg: '#06b6d4', text: '#ffffff' }, // Slab 1 - Cyan
+            { bg: '#f7951a', text: '#ffffff' }, // Slab 2 - Orange
+            { bg: '#34c759', text: '#ffffff' }, // Slab 3 - Green
+            { bg: '#ffc938', text: '#3d2600' }, // Slab 4 - Gold
+            { bg: '#8b5cf6', text: '#ffffff' }, // Slab 5 - Violet
+            { bg: '#ec4899', text: '#ffffff' }  // Slab 6 - Pink
+        ];
+
+        members.forEach(member => {
+            html += `<tr class="group-header">
+                <td><input type="text" id="name_${member.id}" class="editable-name" value="${member.name}" onchange="handleNameChange('${member.id}', this.value)" onfocus="activeInputId='name_${member.id}'"><button class="remove-btn" onclick="removeMember('${member.id}')">✕</button></td>
+                ${MONTHS.map(() => `<td></td>`).join('')}<td class="fy-total"></td>
+            </tr>`;
+            let fyUnits = {}; 
+            for (let k in PRODUCTS) fyUnits[k] = 0;
+
+            for (let pb_key in PRODUCTS) {
+                html += `<tr><td style="padding-left: 2rem; font-size: 0.8rem; color: #475569;">${PRODUCTS[pb_key].name}</td>`;
+                MONTHS.forEach(m => {
+                    let val = member.data[m][pb_key];
+                    fyUnits[pb_key] += val;
+                    globalStats.products[pb_key] += val;
+                    let inputId = `input_${member.id}_${m}_${pb_key}`;
+                    html += `<td><input type="text" inputmode="numeric" class="cell-input" id="${inputId}" value="${val || ''}" oninput="handleInput('${member.id}', '${m}', '${pb_key}', this.value)" onfocus="activeInputId='${inputId}'"></td>`;
+                });
+                html += `<td class="fy-total">${formatNum(fyUnits[pb_key])}</td></tr>`;
+            }
+
+            let fUnits = 0, fCol = 0, fInc = 0, fEarn = 0, fSal = 0;
+            let rowUnits = '', rowCol = '', rowSlab = '', rowInc = '', rowSal = '', rowEarn = '';
+            
+            MONTHS.forEach(m => {
+                let stats = calculateMonthStats(member, m);
+                fUnits += stats.units; fCol += stats.col; fInc += stats.incentive; fSal += stats.salary; fEarn += stats.earning;
+                teamData[m].units += stats.units; teamData[m].col += stats.col;
+                rowUnits += `<td><span class="cell-readonly">${formatNum(stats.units)}</span></td>`;
+                rowCol += `<td><span class="cell-readonly highlight-calc">${formatCur(stats.col)}</span></td>`;
+                let slabContent = '';
+                if (stats.slab) {
+                    let s_idx = sortedSlabsAsc.indexOf(stats.slab);
+                    let theme = SLAB_THEMES[Math.min(s_idx, SLAB_THEMES.length - 1)];
+                    let badgeStyle = `display:inline-flex; align-items:center; font-size:10px; font-weight:600; padding:2px 7px; border-radius:980px; background:${theme.bg}; color:${theme.text}; line-height:1.4;`;
+
+                    let shortName = stats.slab.name.replace(/Slab\s*/gi, '').trim();
+                    slabContent = `<span style="${badgeStyle}">${shortName}</span> <span style="font-size:11px; color:var(--text-3)">(${+(stats.slab.pct * 100).toFixed(2)}%)</span>`;
+                } else {
+                    slabContent = `<span class="badge-none">-</span>`;
+                }
+                rowSlab += `<td>${slabContent}</td>`;
+                rowInc += `<td><span class="cell-readonly highlight-success">${formatCur(stats.incentive)}</span></td>`;
+                rowSal += `<td><span class="cell-readonly" style="color:#94a3b8">${formatCur(stats.salary)}</span></td>`;
+                rowEarn += `<td><span class="cell-readonly" style="font-weight:600">${formatCur(stats.earning)}</span></td>`;
+            });
+
+            globalStats.totalSalary += fSal;
+            globalStats.totalIncentive += fInc;
+
+            html += `<tr><td style="padding-left: 1rem; border-top: 1px dotted #cbd5e1;">Total Units Sold</td>${rowUnits}<td class="fy-total">${formatNum(fUnits)}</td></tr><tr><td style="padding-left: 1rem;">Total Collection</td>${rowCol}<td class="fy-total highlight-calc">${formatCur(fCol)}</td></tr><tr><td style="padding-left: 1rem;">Slab Achieved</td>${rowSlab}<td class="fy-total">-</td></tr><tr><td style="padding-left: 1rem;">Incentive Earned</td>${rowInc}<td class="fy-total highlight-success">${formatCur(fInc)}</td></tr><tr><td style="padding-left: 1rem;">Salary</td>${rowSal}<td class="fy-total">${formatCur(fSal)}</td></tr><tr style="border-bottom: 2px solid #e2e8f0;"><td style="padding-left: 1rem; font-weight: 600;">Total Earnings</td>${rowEarn}<td class="fy-total" style="font-weight:700">${formatCur(fEarn)}</td></tr>`;
+        });
+
+        // Team Aggregates Header
+        let fTUnits = 0, fTCol = 0;
+        let rowTUnits = '', rowTCol = '', rowTMet = '';
+        MONTHS.forEach(m => {
+            let sumU = teamData[m].units; let sumC = teamData[m].col;
+            fTUnits += sumU; fTCol += sumC;
+            let isTargetMet = (sumU >= MGR_TARGET_UNITS && sumC >= MGR_TARGET_COL);
+            rowTUnits += `<td><span class="cell-readonly">${formatNum(sumU)}</span></td>`;
+            rowTCol += `<td><span class="cell-readonly">${formatCur(sumC)}</span></td>`;
+            rowTMet += `<td><span style="${isTargetMet ? 'color: #16a34a; font-weight: 600; font-size: 0.7rem;' : 'color: #94a3b8; font-size: 0.7rem;'}">${isTargetMet ? 'MET' : '-'}</span></td>`;
+        });
+
+        globalStats.totalRevenue = fTCol;
+
+        html += `<tr class="aggregate-header"><td>Team Aggregate</td>${MONTHS.map(() => `<td></td>`).join('')}<td class="fy-total"></td></tr><tr><td style="padding-left: 1rem; font-weight: 600;">Overall Team Units</td>${rowTUnits}<td class="fy-total">${formatNum(fTUnits)}</td></tr><tr><td style="padding-left: 1rem; font-weight: 600;">Overall Team Collection</td>${rowTCol}<td class="fy-total">${formatCur(fTCol)}</td></tr><tr><td style="padding-left: 1rem; color: var(--text-muted); font-size: 0.8rem">Manager Target Met?</td>${rowTMet}<td class="fy-total">-</td></tr>`;
+
+        // Managers Breakdown
+        MANAGERS.forEach((mgr, idx) => {
+            html += `<tr class="manager-header"><td>Manager: ${mgr.name}</td>${MONTHS.map(() => `<td></td>`).join('')}<td class="fy-total"></td></tr>`;
+
+            let rowMgrEarn = '', rowMgrInc = '', rowMgrSal = '';
+            let fMgrEarn = 0, fMgrInc = 0, fMgrSal = 0;
+
+            MONTHS.forEach(m => {
+                let sumU = teamData[m].units; let sumC = teamData[m].col;
+                let isTargetMet = (sumU >= MGR_TARGET_UNITS && sumC >= MGR_TARGET_COL);
+                let inc = isTargetMet ? sumC * mgr.pct : 0;
+                let sal = getActiveSalary(mgr, m);
+                let earn = sal + inc;
+
+                fMgrInc += inc; fMgrSal += sal; fMgrEarn += earn;
+
+                rowMgrSal += `<td><span class="cell-readonly" style="color:#94a3b8">${formatCur(sal)}</span></td>`;
+                rowMgrInc += `<td><span class="cell-readonly highlight-success">${formatCur(inc)}</span></td>`;
+                rowMgrEarn += `<td><span class="cell-readonly" style="font-weight:600">${formatCur(earn)}</span></td>`;
+            });
+            globalStats.totalSalary += fMgrSal;
+            globalStats.totalIncentive += fMgrInc;
+
+            html += `<tr><td style="padding-left: 1rem;">Salary</td>${rowMgrSal}<td class="fy-total">${formatCur(fMgrSal)}</td></tr>`;
+            html += `<tr><td style="padding-left: 1rem; font-weight: 600;">Team Target Payout (${(mgr.pct*100).toFixed(1)}%)</td>${rowMgrInc}<td class="fy-total highlight-success">${formatCur(fMgrInc)}</td></tr>`;
+            html += `<tr style="border-bottom: 2px solid #e2e8f0"><td style="padding-left: 1rem; font-weight: 600;">Total Earnings</td>${rowMgrEarn}<td class="fy-total" style="font-weight:700">${formatCur(fMgrEarn)}</td></tr>`;
+        });
+
+
+        tbody.innerHTML = html;
+
+        // Render Global Summary Box
+        let pctExpense = globalStats.totalRevenue > 0 ? ((globalStats.totalSalary + globalStats.totalIncentive) / globalStats.totalRevenue * 100).toFixed(2) : 0;
+        
+        let productHTML = '';
+        const shortNames = {
+            'mba': 'MBA', 'bsa': 'BSA',
+            'mba_renewal': 'MBA-R', 'bsa_renewal': 'BSA → MBA'
+        };
+        for (let k in PRODUCTS) {
+            let label = shortNames[k] || PRODUCTS[k].name;
+            productHTML += `<div class="stat-box"><span class="stat-label">${label}</span><span class="stat-val">${formatNum(globalStats.products[k])}</span></div>`;
+        }
+
+        document.getElementById('globalSummary').innerHTML = `
+            <div class="stat-box"><span class="stat-label">Total Revenue</span><span class="stat-val highlight-calc">${formatCur(globalStats.totalRevenue)}</span></div>
+            <div class="stat-box"><span class="stat-label">Total Salary</span><span class="stat-val" style="color:#64748b">${formatCur(globalStats.totalSalary)}</span></div>
+            <div class="stat-box"><span class="stat-label">Total Incentive</span><span class="stat-val highlight-success">${formatCur(globalStats.totalIncentive)}</span></div>
+            <div class="stat-box"><span class="stat-label">Expense %</span><span class="stat-val" style="color:#d97706">${pctExpense}%</span></div>
+            
+            <div style="border-left: 2px solid var(--border); height: 30px; margin: 0 0.5rem;"></div>
+            
+            ${productHTML}
+        `;
+
+        if (activeInputId) {
+            let el = document.getElementById(activeInputId);
+            if (el) {
+                el.focus();
+                if (el.setSelectionRange && el.value) { el.setSelectionRange(el.value.length, el.value.length); }
+            }
+        }
+    }
+
+    function renderSettings() {
+        let membersHtml = members.map(m => {
+            let jMonth = m.joinMonth || 'Apr-26';
+            return `
+            <tr>
+                <td><input type="text" class="roster-input" value="${m.name}" onchange="updateMemberProfile('${m.id}', 'name', this.value)"></td>
+                <td>
+                    <select class="roster-input" onchange="updateMemberProfile('${m.id}', 'joinMonth', this.value)">
+                        ${MONTHS.map(month => `<option value="${month}" ${jMonth === month ? 'selected' : ''}>${month}</option>`).join('')}
+                    </select>
+                </td>
+                <td><input type="number" class="roster-input" style="text-align:right" value="${m.salary}" onchange="updateMemberProfile('${m.id}', 'salary', this.value)"></td>
+                <td>
+                    <select class="roster-input" onchange="updateMemberProfile('${m.id}', 'appraisalMonth', this.value)">
+                        <option value="">-- None --</option>
+                        ${MONTHS.map(month => `<option value="${month}" ${m.appraisalMonth === month ? 'selected' : ''}>${month}</option>`).join('')}
+                    </select>
+                </td>
+                <td><input type="number" class="roster-input" style="text-align:right" value="${m.appraisalSalary || ''}" onchange="updateMemberProfile('${m.id}', 'appraisalSalary', this.value)"></td>
+                <td style="text-align:center"><button class="remove-btn" onclick="removeMember('${m.id}')">Remove</button></td>
+            </tr>
+        `}).join('');
+
+        let managerHtml = MANAGERS.map((mgr, idx) => {
+            let jMonth = mgr.joinMonth || 'Apr-26';
+            return `
+            <div class="slab-box">
+                <h4>Manager ${idx+1}</h4>
+                <div class="setting-row"><label>Name</label><input type="text" class="setting-input" value="${mgr.name}" onchange="updateManagerProfile(${idx}, 'name', this.value)"></div>
+                <div class="setting-row"><label>Active From</label>
+                    <select class="setting-input" onchange="updateManagerProfile(${idx}, 'joinMonth', this.value)">
+                        ${MONTHS.map(month => `<option value="${month}" ${jMonth === month ? 'selected' : ''}>${month}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="setting-row"><label>Salary (₹)</label><input type="number" class="setting-input" value="${mgr.salary}" onchange="updateManagerProfile(${idx}, 'salary', this.value)"></div>
+                <div class="setting-row"><label>Appraisal In</label>
+                    <select class="setting-input" onchange="updateManagerProfile(${idx}, 'appraisalMonth', this.value)">
+                        <option value="">-- None --</option>
+                        ${MONTHS.map(month => `<option value="${month}" ${mgr.appraisalMonth === month ? 'selected' : ''}>${month}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="setting-row"><label>Appraised Salary (₹)</label><input type="number" class="setting-input" value="${mgr.appraisalSalary || ''}" onchange="updateManagerProfile(${idx}, 'appraisalSalary', this.value)"></div>
+                <div class="setting-row"><label>Target Override (%)</label><input type="number" class="setting-input" value="${(mgr.pct*100).toFixed(1)}" step="0.1" onchange="updateManagerProfile(${idx}, 'pct', this.value)"></div>
+            </div>
+        `}).join('');
+
+        document.getElementById('settingsContainer').innerHTML = `
+            <!-- Slabs Configuration Card -->
+            <div class="settings-card" style="grid-column: 1 / -1;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem;">
+                    <h3 style="margin:0; border:none; padding:0;">Incentive Slabs (Must meet BOTH limits)</h3>
+                    <button class="btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="addSlab()">+ Add Slab</button>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+                    ${SLABS.map((s, i) => `
+                        <div class="slab-box">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+                                <h4 style="margin:0">${s.name}</h4>
+                                <button class="remove-btn" onclick="removeSlab(${i})">X</button>
+                            </div>
+                            <div class="setting-row"><label style="font-size: 0.75rem;">Slab Name</label><input type="text" class="setting-input" style="width:100px; font-size:0.8rem" value="${s.name}" onchange="updateSlab(${i}, 'name', this.value)"></div>
+                            <div class="setting-row"><label style="font-size: 0.75rem;">Min Units</label><input type="number" class="setting-input" style="width:100px; font-size:0.8rem" value="${s.minUnits}" onchange="updateSlab(${i}, 'minUnits', this.value)"></div>
+                            <div class="setting-row"><label style="font-size: 0.75rem;">Min Collection(₹)</label><input type="number" class="setting-input" style="width:100px; font-size:0.8rem" value="${s.minCol}" onchange="updateSlab(${i}, 'minCol', this.value)"></div>
+                            <div class="setting-row"><label style="font-size: 0.75rem;">Incentive %</label><input type="number" class="setting-input" style="width:100px; font-size:0.8rem" value="${(s.pct*100).toFixed(1)}" step="0.5" onchange="updateSlab(${i}, 'pct', this.value)"></div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
+                <!-- Team Roster Card -->
+                <div class="settings-card" style="grid-column: 1 / -1">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem;">
+                        <h3 style="margin:0; border:none; padding:0;">Team Roster</h3>
+                        <button class="btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="addMember()">+ Add Member</button>
+                    </div>
+                    <table class="roster-table">
+                        <thead><tr><th style="width:20%">Name</th><th style="width:15%">Active From</th><th style="width:15%">Salary (₹)</th><th style="width:15%">Appraisal In</th><th style="width:20%">Appraised Sal (₹)</th><th style="width:10%; text-align:center;">Action</th></tr></thead>
+                        <tbody>${membersHtml}</tbody>
+                    </table>
+                </div>
+
+                <!-- Product Values Card -->
+                <div class="settings-card" style="grid-column: 1 / -1; display:flex; gap:1rem; flex-wrap:wrap;">
+                    <div style="width:100%; border-bottom:1px solid #e5e7eb; margin-bottom:0.5rem; padding-bottom:0.1rem"><h3 style="border:none; margin:0">Product Values (₹)</h3></div>
+                    <div class="setting-row" style="flex:1; min-width:250px"><label>MBA Units</label><input type="number" class="setting-input" value="${PRODUCTS['mba'].value}" onchange="updateProduct('mba', this.value)"></div>
+                    <div class="setting-row" style="flex:1; min-width:250px"><label>BSA Units</label><input type="number" class="setting-input" value="${PRODUCTS['bsa'].value}" onchange="updateProduct('bsa', this.value)"></div>
+                    <div class="setting-row" style="flex:1; min-width:250px"><label>MBA Renewal</label><input type="number" class="setting-input" value="${PRODUCTS['mba_renewal'].value}" onchange="updateProduct('mba_renewal', this.value)"></div>
+                    <div class="setting-row" style="flex:1; min-width:250px"><label>BSA to MBA Renewal</label><input type="number" class="setting-input" value="${PRODUCTS['bsa_renewal'].value}" onchange="updateProduct('bsa_renewal', this.value)"></div>
+                </div>
+            </div>
+
+            <!-- Managers Card -->
+            <div class="settings-card">
+                <h3>Manager Profiles & Targets</h3>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                    <div class="slab-box">
+                        <h4>Condition to unlock Manager Target Payout:</h4>
+                        <div class="setting-row"><label>Team Min Total Units</label><input type="number" class="setting-input" value="${MGR_TARGET_UNITS}" onchange="updateTargetSettings('MGR_TARGET_UNITS', this.value)"></div>
+                        <div class="setting-row"><label>Team Min Collection (₹)</label><input type="number" class="setting-input" value="${MGR_TARGET_COL}" onchange="updateTargetSettings('MGR_TARGET_COL', this.value)"></div>
+                    </div>
+                    ${managerHtml}
+                </div>
+            </div>
+        `;
+    }
+
+    function exportCSV() {
+        let csvContent = "data:text/csv;charset=utf-8,";
+        
+        csvContent += "Items," + MONTHS.join(",") + ",FY Total\n";
+
+        const rows = document.querySelectorAll("#projectionTable tbody tr");
+        rows.forEach(row => {
+            let rowData = [];
+            const cells = row.querySelectorAll("td");
+            cells.forEach(cell => {
+                let txt = "";
+                let inputEl = cell.querySelector("input");
+                if (inputEl) {
+                    txt = inputEl.value;
+                    if (inputEl.classList.contains('cell-input') && !txt) txt = "0";
+                } else {
+                    txt = cell.innerText.replace(/[\n\r]+/g, " ").trim();
+                    txt = txt.replace(/₹|,/g, "");
+                    if (txt === "-") txt = "0";
+                }
+                rowData.push('"' + txt + '"');
+            });
+            csvContent += rowData.join(",") + "\n";
+        });
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "incentive_projection_fy26_27.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    loadState();
+    renderTable();
+
+</script>
+</body>
+</html>
